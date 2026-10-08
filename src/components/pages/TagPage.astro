@@ -1,0 +1,54 @@
+---
+import { type Lang, otherLang, routes, tagUrl } from "../../i18n/lang";
+import { postCount, t } from "../../i18n/ui";
+import Base from "../../layouts/Base.astro";
+import { getPosts } from "../../lib/content";
+import Frame from "../Frame.astro";
+import PostItem from "../PostItem.astro";
+
+interface Props {
+	lang: Lang;
+	tag: string;
+}
+
+const { lang, tag } = Astro.props;
+const other = otherLang(lang);
+
+const posts = (await getPosts(lang)).filter((post) => post.tags.includes(tag));
+// A mesma tag pode não existir no outro idioma; aí o PT | EN leva à lista de tags de lá.
+const otherHasTag = (await getPosts(other)).some((post) => post.tags.includes(tag));
+const alternates: Partial<Record<Lang, string>> = {
+	[lang]: tagUrl(lang, tag),
+	[other]: otherHasTag ? tagUrl(other, tag) : routes.tags[other],
+};
+---
+
+<Base
+	lang={lang}
+	title={`#${tag}`}
+	description={t(lang, "tag.description", { tag: `#${tag}` })}
+	alternates={alternates}
+	current="tags"
+>
+	<Frame label={`#${tag}`} labelTag="h1">
+		<a slot="action" class="button frame-action" href={routes.tags[lang]}>
+			{t(lang, "home.allTags")} ›
+		</a>
+		<p class="post-meta count">{postCount(lang, posts.length)}</p>
+		<ul class="post-list">
+			{
+				posts.map((post) => (
+					<li>
+						<PostItem post={post} lang={lang} headingTag="h2" />
+					</li>
+				))
+			}
+		</ul>
+	</Frame>
+</Base>
+
+<style>
+	.count {
+		margin-bottom: 0.75rem;
+	}
+</style>

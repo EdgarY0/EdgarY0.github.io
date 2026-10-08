@@ -1,0 +1,77 @@
+:root {
+	color-scheme: dark;
+
+	/*
+	 * O kasparyan usa âmbar (#ffaa3c) sobre um preto puxado para o âmbar (#1b140c).
+	 * Aqui é o mesmo esquema em verde fósforo: fundo e texto no mesmo matiz.
+	 * Para trocar o tom do verde, mude o --fg (e, se quiser, o matiz do --bg).
+	 */
+	--bg: oklch(18% 0.02 151); /* ≈ #0b140d */
+	--surface: oklch(22.6% 0.028 154); /* ≈ #112016 — código e rodapé */
+	--fg: oklch(87.6% 0.249 146.6); /* ≈ #33ff66 — texto e bordas, 14:1 sobre o fundo */
+	--fg-dim: oklch(66.4% 0.183 147.5); /* ≈ #22b04a — datas e metadados, 6,6:1 sobre o fundo */
+	--line-soft: color-mix(in oklch, var(--fg) 35%, var(--bg));
+	/* Opaco de propósito: botões presos na moldura precisam esconder a linha atrás. */
+	--fill: color-mix(in oklch, var(--fg) 22%, var(--bg));
+	--glow: color-mix(in oklch, var(--fg) 75%, transparent);
+
+	--border: 2px;
+	--border-strong: 3px;
+	--radius-media: 8px;
+	/* Altura das abas e botões presos na borda: a linha da moldura passa no meio deles. */
+	--control-height: 2.5rem;
+
+	/* Escala fluida copiada do tema Terminal Blog do kasparyan. */
+	--font-size-xs: clamp(0.7rem, 0.17vw + 0.76rem, 0.79rem);
+	--font-size-sm: clamp(0.8rem, 0.17vw + 0.76rem, 0.89rem);
+	--font-size-base: clamp(1rem, 0.34vw + 0.91rem, 1.19rem);
+	--font-size-md: clamp(1.25rem, 0.61vw + 1.1rem, 1.58rem);
+	--font-size-lg: clamp(1.56rem, 1vw + 1.31rem, 2.11rem);
+	--font-size-xl: clamp(1.95rem, 1.56vw + 1.56rem, 2.81rem);
+	--font-size-xxl: clamp(2.44rem, 2.38vw + 1.85rem, 3.75rem);
+
+	/* Código (tema "css-variables" do Shiki): monocromático, varia a luminosidade. */
+	--astro-code-foreground: var(--fg);
+	--astro-code-background: var(--surface);
+	--astro-code-token-keyword: oklch(94% 0.1 152.5);
+	--astro-code-token-string: oklch(90.3% 0.175 150.4);
+	--astro-code-token-string-expression: oklch(90.3% 0.175 150.4);
+	--astro-code-token-constant: oklch(88.8% 0.213 148.4);
+	--astro-code-token-function: var(--fg);
+	--astro-code-token-parameter: var(--fg);
+	--astro-code-token-comment: var(--fg-dim);
+	--astro-code-token-punctuation: oklch(62.7% 0.173 147.5);
+	--astro-code-token-link: var(--fg);
+}
+
+/* Busca (Pagefind): os componentes aplicam `all: initial`, só as --pf-* atravessam.
+ * O Pagefind declara os padrões dele em :root; html:root vence sem depender da ordem dos arquivos. */
+html:root {
+	--pf-font: var(--font-mono);
+	--pf-text: var(--fg);
+	--pf-text-secondary: var(--fg-dim);
+	--pf-text-muted: var(--fg-dim);
+	--pf-background: var(--bg);
+	--pf-border: var(--fg);
+	--pf-border-focus: var(--fg);
+	--pf-skeleton: var(--surface);
+	--pf-skeleton-shine: var(--fill);
+	--pf-hover: var(--fill);
+	--pf-mark: var(--fg);
+	--pf-scroll-shadow: transparent;
+	--pf-shadow-sm: none;
+	--pf-shadow-md: none;
+	/* Contorno de 2px com brilho: o painel da busca não tem borda própria. */
+	--pf-shadow-lg: 0 0 0 var(--border) var(--fg), 0 0 24px var(--glow);
+	--pf-outline-focus: var(--fg);
+	--pf-border-radius: 0;
+	--pf-input-height: var(--control-height);
+	--pf-modal-backdrop: color-mix(in oklch, black 75%, transparent);
+}
+
+@media (pointer: coarse) {
+	:root {
+		/* Alvo de toque de 44px. */
+		--control-height: 2.75rem;
+	}
+}

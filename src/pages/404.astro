@@ -1,0 +1,44 @@
+---
+import Frame from "../components/Frame.astro";
+import { routes } from "../i18n/lang";
+import Base from "../layouts/Base.astro";
+---
+
+<Base lang="pt-BR" title="Página não encontrada">
+	<Frame label="404" labelTag="h1">
+		<div class="terminal">
+			<p><span class="prompt" aria-hidden="true">$</span> cd <span data-path>~/pagina</span></p>
+			<p>bash: cd: <span data-path>~/pagina</span>: Arquivo ou diretório inexistente</p>
+			<p class="post-meta" lang="en">No such file or directory: this page does not exist.</p>
+		</div>
+		<p class="actions">
+			<a class="button" href={routes.home["pt-BR"]}>Início</a>
+			<a class="button" href={routes.home.en} hreflang="en" lang="en">Home (English)</a>
+		</p>
+	</Frame>
+</Base>
+
+<script>
+	// O GitHub Pages devolve este mesmo 404.html para qualquer caminho; o caminho pedido só existe no navegador.
+	for (const path of document.querySelectorAll("[data-path]")) {
+		path.textContent = window.location.pathname;
+	}
+</script>
+
+<style>
+	.terminal p {
+		margin: 0 0 0.5rem;
+		overflow-wrap: anywhere;
+	}
+
+	.prompt {
+		color: var(--fg-dim);
+	}
+
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin: 1.5rem 0 0;
+	}
+</style>

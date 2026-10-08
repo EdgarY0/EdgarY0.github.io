@@ -1,0 +1,12 @@
+---
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import TagPage from "../../../components/pages/TagPage.astro";
+import { tagStaticPaths } from "../../../lib/content";
+
+export const getStaticPaths = (() => tagStaticPaths("en")) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+const { tag } = Astro.props;
+---
+
+<TagPage lang="en" tag={tag} />

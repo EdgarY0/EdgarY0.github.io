@@ -1,0 +1,128 @@
+---
+import { render } from "astro:content";
+import { type Lang, otherLang } from "../../i18n/lang";
+import { t } from "../../i18n/ui";
+import Base from "../../layouts/Base.astro";
+import { getAllPosts, type Post } from "../../lib/content";
+import { formatDate, neighbors, translationOf } from "../../lib/posts";
+import TagList from "../TagList.astro";
+
+interface Props {
+	post: Post;
+}
+
+const { post } = Astro.props;
+const { lang } = post;
+const other = otherLang(lang);
+
+const allPosts = await getAllPosts();
+const translation = translationOf(post, allPosts);
+const { newer, older } = neighbors(
+	allPosts.filter((candidate) => candidate.lang === lang),
+	post.url,
+);
+const alternates: Partial<Record<Lang, string>> = { [lang]: post.url };
+if (translation !== undefined) alternates[other] = translation.url;
+
+const { Content } = await render(post.entry);
+---
+
+<Base
+	lang={lang}
+	title={post.title}
+	description={post.description}
+	alternates={alternates}
+	article={{ published: post.date, tags: post.tags }}
+>
+	<article class="frame post" data-pagefind-body>
+		<div class="post-body">
+			<header class="post-header">
+				<h1 class="post-heading">{post.title}</h1>
+				<p class="post-meta">
+					{t(lang, "post.publishedOn")}{" "}
+					<time datetime={post.date.toISOString().slice(0, 10)}>{formatDate(post.date, lang)}</time>{" "}
+					<span aria-hidden="true">·</span> {t(lang, "post.minutes", { n: post.minutes })}
+					{post.draft && <span class="draft">[{t(lang, "draft")}]</span>}
+				</p>
+				<TagList tags={post.tags} lang={lang} label={t(lang, "post.tags")} />
+				{
+					translation !== undefined && (
+						<p class="translation" data-pagefind-ignore>
+							<a class="button chip" href={translation.url} hreflang={other} lang={other}>
+								{t(other, "post.readIn")} ›
+							</a>
+						</p>
+					)
+				}
+			</header>
+			<div class="prose">
+				<Content />
+			</div>
+		</div>
+	</article>
+
+	{
+		(newer !== undefined || older !== undefined) && (
+			<nav class="post-nav" aria-label={t(lang, "post.navLabel")}>
+				{newer !== undefined && (
+					<a class="nav-card newer" href={newer.url}>
+						<span class="post-meta">‹ {t(lang, "post.newer")}</span>
+						<span class="nav-title">{newer.title}</span>
+					</a>
+				)}
+				{older !== undefined && (
+					<a class="nav-card older" href={older.url}>
+						<span class="post-meta">{t(lang, "post.older")} ›</span>
+						<span class="nav-title">{older.title}</span>
+					</a>
+				)}
+			</nav>
+		)
+	}
+</Base>
+
+<style>
+	.post-header {
+		display: grid;
+		gap: 0.6rem;
+		margin-bottom: 2rem;
+		padding-bottom: 1.5rem;
+		border-bottom: var(--border) dashed var(--fg-dim);
+	}
+
+	.translation {
+		margin: 0.25rem 0 0;
+	}
+
+	.post-nav {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+		gap: 1rem;
+		margin-top: 1.5rem;
+	}
+
+	.nav-card {
+		display: grid;
+		gap: 0.25rem;
+		padding: 1rem 1.25rem;
+		border: var(--border) solid var(--fg);
+		text-decoration: none;
+		transition: box-shadow 0.1s ease;
+	}
+
+	.nav-card:hover,
+	.nav-card:focus-visible {
+		box-shadow: inset 0 0 8px var(--glow);
+	}
+
+	.older {
+		text-align: right;
+	}
+
+	.nav-title {
+		font-weight: 700;
+		text-decoration: underline;
+		text-decoration-thickness: 2px;
+		text-underline-offset: 0.2em;
+	}
+</style>

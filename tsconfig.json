@@ -1,0 +1,9 @@
+{
+	"extends": "astro/tsconfigs/strictest",
+	"compilerOptions": {
+		// O TypeScript 6 não inclui mais @types/* sozinho; o bun traz os tipos de bun:test.
+		"types": ["bun"]
+	},
+	"include": [".astro/types.d.ts", "**/*"],
+	"exclude": ["dist"]
+}

@@ -1,0 +1,55 @@
+---
+import { type Lang, routes, tagUrl } from "../../i18n/lang";
+import { postCount, t } from "../../i18n/ui";
+import Base from "../../layouts/Base.astro";
+import { getPosts } from "../../lib/content";
+import { countTags } from "../../lib/posts";
+import Frame from "../Frame.astro";
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const tags = countTags(await getPosts(lang));
+---
+
+<Base
+	lang={lang}
+	title={t(lang, "tags.title")}
+	description={t(lang, "tags.description")}
+	alternates={routes.tags}
+	current="tags"
+>
+	<Frame label={t(lang, "tags.title")} labelTag="h1">
+		{tags.length === 0 && <p>{t(lang, "home.empty")}</p>}
+		<ul class="tags">
+			{
+				tags.map(({ tag, count }) => (
+					<li>
+						<a class="button chip" href={tagUrl(lang, tag)}>
+							#{tag}{" "}
+							<span class="count">{postCount(lang, count)}</span>
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</Frame>
+</Base>
+
+<style>
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.count {
+		color: var(--fg-dim);
+		font-weight: 400;
+	}
+</style>

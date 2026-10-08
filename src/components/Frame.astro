@@ -1,0 +1,17 @@
+---
+interface Props {
+	label: string;
+	labelTag?: "h1" | "h2" | "p";
+	id?: string;
+	class?: string;
+}
+
+// O resto das props carrega o atributo de escopo do CSS de quem usa a moldura.
+const { label, labelTag: Label = "h2", id, class: className, ...rest } = Astro.props;
+---
+
+<section class:list={["frame", className]} id={id} {...rest}>
+	<Label class="frame-label">{label}</Label>
+	<slot name="action" />
+	<slot />
+</section>

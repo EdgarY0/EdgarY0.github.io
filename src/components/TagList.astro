@@ -1,0 +1,23 @@
+---
+import { type Lang, tagUrl } from "../i18n/lang";
+
+interface Props {
+	tags: readonly string[];
+	lang: Lang;
+	label?: string;
+}
+
+const { tags, lang, label } = Astro.props;
+---
+
+{
+	tags.length > 0 && (
+		<ul class="tag-list" aria-label={label}>
+			{tags.map((tag) => (
+				<li>
+					<a href={tagUrl(lang, tag)}>#{tag}</a>
+				</li>
+			))}
+		</ul>
+	)
+}

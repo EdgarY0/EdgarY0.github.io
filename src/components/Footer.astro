@@ -1,0 +1,32 @@
+---
+import { site } from "../config";
+import { type Lang, routes } from "../i18n/lang";
+import { t } from "../i18n/ui";
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<footer class="site-footer">
+	<p>
+		© {new Date().getFullYear()} {site.author} · {t(lang, "footer.made")} ·{" "}
+		<a href={routes.rss[lang]}>RSS</a>
+	</p>
+</footer>
+
+<style>
+	.site-footer {
+		margin-top: 3rem;
+		padding: 1.25rem 1rem;
+		background: var(--surface);
+		font-size: var(--font-size-xs);
+		text-align: center;
+	}
+
+	.site-footer p {
+		margin: 0;
+	}
+</style>

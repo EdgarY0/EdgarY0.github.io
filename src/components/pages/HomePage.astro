@@ -1,0 +1,208 @@
+---
+import { type Lang, otherLang, routes, tagUrl } from "../../i18n/lang";
+import { t } from "../../i18n/ui";
+import Base from "../../layouts/Base.astro";
+import { getPosts } from "../../lib/content";
+import { countTags, formatDate, groupByMonth } from "../../lib/posts";
+import Frame from "../Frame.astro";
+import PostItem from "../PostItem.astro";
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const other = otherLang(lang);
+
+const posts = await getPosts(lang);
+const featured = posts.filter((post) => post.featured);
+const months = groupByMonth(posts, lang);
+const topics = countTags(posts).slice(0, 12);
+const otherHasPosts = (await getPosts(other)).length > 0;
+---
+
+<Base lang={lang} alternates={routes.home} current="home">
+	<div class="home">
+		<div class="feed">
+			{
+				featured.length > 0 && (
+					<details class="frame featured" open>
+						<summary class="frame-label">
+							<h2>{t(lang, "home.featured")}</h2>
+						</summary>
+						<ol class="featured-list">
+							{featured.map((post) => (
+								<li>
+									<a href={post.url}>{post.title}</a>{" "}
+									<span class="post-meta">{formatDate(post.date, lang)}</span>
+								</li>
+							))}
+						</ol>
+					</details>
+				)
+			}
+
+			{
+				months.length === 0 ? (
+					<Frame label={t(lang, "home.title")}>
+						<p>{t(lang, "home.empty")}</p>
+						{otherHasPosts && (
+							<p>
+								<a class="button" href={routes.home[other]} hreflang={other}>
+									{t(lang, "home.otherLang")} ›
+								</a>
+							</p>
+						)}
+					</Frame>
+				) : (
+					months.map((month) => (
+						<Frame label={month.label} id={month.key}>
+							<ul class="post-list">
+								{month.posts.map((post) => (
+									<li>
+										<PostItem post={post} lang={lang} />
+									</li>
+								))}
+							</ul>
+						</Frame>
+					))
+				)
+			}
+		</div>
+
+		<aside class="aside">
+			{
+				months.length > 0 && (
+					<Frame label={t(lang, "home.onThisPage")} class="on-this-page">
+						<ul class="month-links">
+							{months.map((month) => (
+								<li>
+									<a href={`#${month.key}`}>{month.label}</a>
+								</li>
+							))}
+						</ul>
+						<p class="back-to-top">
+							<a href="#top">↑ {t(lang, "home.backToTop")}</a>
+						</p>
+					</Frame>
+				)
+			}
+			{
+				topics.length > 0 && (
+					<Frame label={t(lang, "home.topics")}>
+						<ul class="topic-list">
+							{topics.map(({ tag }) => (
+								<li>
+									<a href={tagUrl(lang, tag)}>#{tag}</a>
+								</li>
+							))}
+						</ul>
+						<p class="all-tags">
+							<a class="button" href={routes.tags[lang]}>
+								{t(lang, "home.allTags")} ›
+							</a>
+						</p>
+					</Frame>
+				)
+			}
+		</aside>
+	</div>
+</Base>
+
+<style>
+	.home {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		column-gap: 2rem;
+	}
+
+	@media (min-width: 68rem) {
+		.home {
+			grid-template-columns: minmax(0, 1fr) 17rem;
+		}
+
+		.aside {
+			position: sticky;
+			top: 0;
+			align-self: start;
+		}
+	}
+
+	/* "Nesta página" é atalho de tela larga; no celular a lista de meses só empurra o conteúdo. */
+	@media (max-width: 67.99rem) {
+		.on-this-page {
+			display: none;
+		}
+	}
+
+	.featured > summary {
+		gap: 0.75rem;
+		cursor: pointer;
+		list-style: none;
+	}
+
+	.featured > summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.featured > summary h2 {
+		margin: 0;
+		font-size: inherit;
+	}
+
+	.featured > summary::after {
+		content: "−" / "";
+	}
+
+	.featured:not([open]) > summary::after {
+		content: "+" / "";
+	}
+
+	/* Fechado, a moldura vira só a linha com o rótulo. */
+	.featured:not([open]) {
+		padding-block: calc(var(--control-height) / 2) 0;
+	}
+
+	.featured-list {
+		display: grid;
+		gap: 0.6rem;
+		margin: 0;
+		padding-left: 2.25rem;
+		list-style: decimal-leading-zero;
+	}
+
+	.featured-list li::marker {
+		color: var(--fg-dim);
+	}
+
+	.featured-list a {
+		font-weight: 700;
+		text-decoration-thickness: 2px;
+	}
+
+	.featured-list .post-meta {
+		margin-left: 1ch;
+	}
+
+	.month-links,
+	.topic-list {
+		display: grid;
+		gap: 0.35rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		font-size: var(--font-size-sm);
+	}
+
+	.topic-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem 1rem;
+	}
+
+	.back-to-top,
+	.all-tags {
+		margin: 1rem 0 0;
+		font-size: var(--font-size-sm);
+	}
+</style>

@@ -1,0 +1,28 @@
+{
+	"name": "ednotes",
+	"type": "module",
+	"version": "0.1.0",
+	"private": true,
+	"packageManager": "bun@1.4.0",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build && pagefind --site dist",
+		"preview": "astro preview",
+		"typecheck": "astro check",
+		"lint": "biome check .",
+		"test": "TZ=America/Sao_Paulo bun test",
+		"verify": "bun run typecheck && bun run lint && bun run test && bun run build"
+	},
+	"dependencies": {
+		"@astrojs/rss": "^4.0.19",
+		"@astrojs/sitemap": "^3.7.4",
+		"astro": "^7.3.7"
+	},
+	"devDependencies": {
+		"@astrojs/check": "^0.9.10",
+		"@biomejs/biome": "^2.5.15",
+		"@types/bun": "^1.4.2",
+		"pagefind": "^1.5.2",
+		"typescript": "^6.0.3"
+	}
+}

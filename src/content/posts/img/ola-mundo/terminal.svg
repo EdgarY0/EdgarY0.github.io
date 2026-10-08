@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="300" viewBox="0 0 720 300" font-family="'Roboto Mono', ui-monospace, monospace" font-size="18">
+	<title>Terminal rodando o build do EdNotes</title>
+	<rect width="720" height="300" fill="#0b140d"/>
+	<rect x="12" y="12" width="696" height="276" fill="none" stroke="#33ff66" stroke-width="3"/>
+	<path d="M12 56h696" stroke="#33ff66" stroke-width="2"/>
+	<g fill="none" stroke="#33ff66" stroke-width="2">
+		<rect x="30" y="26" width="16" height="16"/>
+		<rect x="56" y="26" width="16" height="16"/>
+		<rect x="82" y="26" width="16" height="16"/>
+	</g>
+	<text x="360" y="40" fill="#22b04a" text-anchor="middle">edgar@ednotes: ~/blog</text>
+	<g fill="#33ff66">
+		<text x="36" y="100"><tspan fill="#22b04a">$</tspan> git push origin main</text>
+		<text x="36" y="136"><tspan fill="#22b04a">&gt;</tspan> bun run verify</text>
+		<text x="36" y="172"><tspan fill="#22b04a">&gt;</tspan> astro build &amp;&amp; pagefind --site dist</text>
+		<text x="36" y="208">✓ site publicado em edgary0.github.io</text>
+		<text x="36" y="244"><tspan fill="#22b04a">$</tspan> <tspan>█</tspan></text>
+	</g>
+</svg>

@@ -1,0 +1,32 @@
+---
+import type { MarkdownLayoutProps } from "astro";
+import { type Lang, type NavPage, routes } from "../i18n/lang";
+import Base from "./Base.astro";
+
+// Layout das páginas em Markdown de src/pages (Sobre/About).
+type Props = MarkdownLayoutProps<{
+	title: string;
+	description: string;
+	lang: Lang;
+	page: NavPage;
+}>;
+
+const { frontmatter } = Astro.props;
+---
+
+<Base
+	lang={frontmatter.lang}
+	title={frontmatter.title}
+	description={frontmatter.description}
+	alternates={routes[frontmatter.page]}
+	current={frontmatter.page}
+>
+	<article class="frame post">
+		<div class="post-body">
+			<h1 class="post-heading">{frontmatter.title}</h1>
+			<div class="prose">
+				<slot />
+			</div>
+		</div>
+	</article>
+</Base>

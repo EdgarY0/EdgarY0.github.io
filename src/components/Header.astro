@@ -1,0 +1,242 @@
+---
+import { site } from "../config";
+import { LANGS, type Lang, type NavPage, routes } from "../i18n/lang";
+import { t } from "../i18n/ui";
+import { formatLongDate } from "../lib/posts";
+import Icon from "./Icon.astro";
+
+interface Props {
+	lang: Lang;
+	alternates: Partial<Record<Lang, string>>;
+	current?: NavPage | undefined;
+}
+
+const { lang, alternates, current } = Astro.props;
+
+const nav: { page: NavPage; label: string }[] = [
+	{ page: "home", label: t(lang, "nav.home") },
+	{ page: "archive", label: t(lang, "nav.archive") },
+	{ page: "tags", label: t(lang, "nav.tags") },
+	{ page: "about", label: t(lang, "nav.about") },
+];
+
+const languages = LANGS.map((code) => ({
+	code,
+	short: code === "pt-BR" ? "PT" : "EN",
+	name: t(code, "lang.name"),
+	href: alternates[code] ?? routes.home[code],
+}));
+
+// A home tem o nome do blog como título principal; nas outras páginas o h1 é o do conteúdo.
+const TitleTag = current === "home" ? "h1" : "p";
+---
+
+<header class="site-header" id="top">
+	<div class="edge edge-top">
+		<p class="tab" data-today>{formatLongDate(new Date(), lang, site.timeZone)}</p>
+		<div class="tools">
+			<a class="button icon-button" href={site.github} aria-label={t(lang, "social.github")}>
+				<Icon name="github" />
+			</a>
+			<a class="button icon-button" href={routes.rss[lang]} aria-label={t(lang, "social.rss")}>
+				<Icon name="rss" />
+			</a>
+		</div>
+	</div>
+
+	<div class="brand">
+		<TitleTag class="site-title">
+			<a href={routes.home[lang]}>{site.title}<span class="cursor" aria-hidden="true"></span></a>
+		</TitleTag>
+		<p class="tagline">{site.tagline[lang]}</p>
+	</div>
+
+	<div class="edge edge-bottom">
+		<nav aria-label={t(lang, "nav.label")}>
+			<ul class="nav-list">
+				{
+					nav.map((item) => (
+						<li>
+							<a
+								class="button"
+								href={routes[item.page][lang]}
+								aria-current={item.page === current ? "page" : undefined}
+							>
+								{item.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</nav>
+		<div class="tools">
+			<ul class="lang-switch" aria-label={t(lang, "lang.label")}>
+				{
+					languages.map((language) => (
+						<li>
+							<a
+								class="button"
+								href={language.href}
+								hreflang={language.code}
+								lang={language.code}
+								aria-current={language.code === lang ? "true" : undefined}
+							>
+								{/* O nome acessível começa pelo texto visível, para quem navega por voz dizer "PT". */}
+								{language.short}{" "}
+								<span class="visually-hidden">({language.name})</span>
+							</a>
+						</li>
+					))
+				}
+			</ul>
+			<pagefind-modal-trigger class="search" compact placeholder={t(lang, "search.label")}
+			></pagefind-modal-trigger>
+		</div>
+	</div>
+</header>
+
+<script>
+	// O build congela a data; no navegador ela vira a de hoje, no fuso de quem lê.
+	const today = document.querySelector("[data-today]");
+	if (today !== null) {
+		today.textContent = new Intl.DateTimeFormat(document.documentElement.lang, {
+			dateStyle: "long",
+		}).format(new Date());
+	}
+</script>
+
+<style>
+	.site-header {
+		margin-top: calc(var(--control-height) / 2 + 1.25rem);
+		padding-inline: 1rem;
+		border-block: var(--border) solid var(--fg);
+		/* Laterais em colchete, como no kasparyan: a linha só desce pelos cantos. */
+		background:
+			linear-gradient(var(--fg), var(--fg)) left top / var(--border) 30% no-repeat,
+			linear-gradient(var(--fg), var(--fg)) left bottom / var(--border) 30% no-repeat,
+			linear-gradient(var(--fg), var(--fg)) right top / var(--border) 30% no-repeat,
+			linear-gradient(var(--fg), var(--fg)) right bottom / var(--border) 30% no-repeat;
+	}
+
+	@media (min-width: 48rem) {
+		.site-header {
+			padding-inline: 1.5rem;
+		}
+	}
+
+	/* As faixas de cima e de baixo ficam centradas na borda: a linha passa por trás. */
+	.edge {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+	}
+
+	.edge-top {
+		margin-top: calc(var(--control-height) / -2 - var(--border) / 2);
+	}
+
+	.edge-bottom {
+		margin-bottom: calc(var(--control-height) / -2 - var(--border) / 2);
+	}
+
+	.tab {
+		display: inline-flex;
+		align-items: center;
+		min-height: var(--control-height);
+		margin: 0;
+		padding: 0 0.75rem;
+		border: var(--border) solid var(--fg);
+		background: var(--bg);
+		font-size: var(--font-size-sm);
+	}
+
+	.tools {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.edge-bottom .tools {
+		margin-left: auto;
+	}
+
+	@media (max-width: 30rem) {
+		.nav-list {
+			gap: 0.4rem;
+		}
+
+		.nav-list .button {
+			padding-inline: 0.55rem;
+		}
+	}
+
+	.icon-button {
+		width: var(--control-height);
+		padding: 0;
+	}
+
+	.brand {
+		padding: 2rem 0 2.25rem;
+		text-align: center;
+	}
+
+	.site-title {
+		margin: 0;
+		font-size: var(--font-size-xxl);
+		font-weight: 700;
+		line-height: 1.1;
+		text-shadow: 0 0 14px color-mix(in oklch, var(--fg) 40%, transparent);
+	}
+
+	.site-title a {
+		text-decoration: none;
+	}
+
+	.cursor {
+		display: inline-block;
+		width: 0.55em;
+		height: 0.85em;
+		margin-left: 0.1em;
+		background: currentColor;
+		vertical-align: -0.05em;
+		animation: blink 1.1s steps(1) infinite;
+	}
+
+	@keyframes blink {
+		50% {
+			opacity: 0;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.cursor {
+			animation: none;
+		}
+	}
+
+	.tagline {
+		margin: 0.75rem 0 0;
+		font-size: var(--font-size-sm);
+	}
+
+	.nav-list,
+	.lang-switch {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.lang-switch {
+		gap: 0;
+	}
+
+	.lang-switch li + li .button {
+		border-left-width: 0;
+	}
+
+</style>
